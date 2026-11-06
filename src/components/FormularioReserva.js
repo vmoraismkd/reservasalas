@@ -60,7 +60,7 @@ export default function FormularioReserva({ salaId, nomeSala, onFechar }) {
           </label>
         </div>
 
-        <p className="-mt-2 text-sm text-zinc-500 dark:text-zinc-400">Horas de Lisboa.</p>
+        <p className="-mt-2 text-sm text-zinc-500 dark:text-zinc-400">Horas de Lisboa. Cada reserva dura no máximo 2 horas.</p>
 
         {estado.erro && (
           <p

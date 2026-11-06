@@ -1,5 +1,6 @@
 import { Reserva, garantirSemSobreposicao } from "../dominio/Reserva.js";
 import { ErroDominio } from "../dominio/ErroDominio.js";
+import { garantirDuracaoMaxima } from "../dominio/duracao.js";
 
 const ERRO_TECNICO = "Não foi possível concluir a reserva. Tente novamente mais tarde.";
 
@@ -15,6 +16,7 @@ export async function reservarSala(repositorio, { salaId, inicio, fim } = {}) {
     // As validações das datas são feitas pelo domínio ao criar a Reserva.
     const id = await repositorio.proximoIdReserva();
     const reserva = new Reserva({ id, salaId, inicio, fim });
+    garantirDuracaoMaxima(reserva);
 
     const existentes = await repositorio.listarReservasDaSala(salaId);
     garantirSemSobreposicao(reserva, existentes);
