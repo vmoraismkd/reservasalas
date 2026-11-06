@@ -3,7 +3,7 @@
 import { useState } from "react";
 import FormularioReserva from "./FormularioReserva";
 
-export default function CartaoSala({ nome, capacidade }) {
+export default function CartaoSala({ id, nome, capacidade }) {
   const [formularioAberto, setFormularioAberto] = useState(false);
 
   return (
@@ -25,7 +25,7 @@ export default function CartaoSala({ nome, capacidade }) {
         Reservar
       </button>
       {formularioAberto && (
-        <FormularioReserva nomeSala={nome} onFechar={() => setFormularioAberto(false)} />
+        <FormularioReserva salaId={id} nomeSala={nome} onFechar={() => setFormularioAberto(false)} />
       )}
     </li>
   );

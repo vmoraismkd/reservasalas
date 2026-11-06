@@ -1,6 +1,7 @@
 import CartaoSala from "../components/CartaoSala";
 
 // Dados de exemplo até existir a camada de persistência.
+// ATENÇÃO: os ids têm de coincidir com src/persistencia/salasFixas.js, que é onde as reservas são validadas.
 const salas = [
   { id: 1, nome: "Sala Atlântico", capacidade: 12 },
   { id: 2, nome: "Sala Douro", capacidade: 6 },
@@ -21,7 +22,7 @@ export default function Home() {
       </header>
       <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4">
         {salas.map((sala) => (
-          <CartaoSala key={sala.id} nome={sala.nome} capacidade={sala.capacidade} />
+          <CartaoSala key={sala.id} id={sala.id} nome={sala.nome} capacidade={sala.capacidade} />
         ))}
       </ul>
     </main>
