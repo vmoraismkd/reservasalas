@@ -64,3 +64,16 @@ export function lisboaParaUTC(data, hora) {
   // Dois: a hora repete-se na passagem para a hora de inverno; usa-se a primeira vez que acontece.
   return { instante: new Date(candidatos[0]) };
 }
+
+/**
+ * O inverso, para mostrar no ecrã: um instante (UTC) como data e hora de Lisboa.
+ * @param {Date} instante
+ * @returns {{ data: string, hora: string }} data "AAAA-MM-DD" e hora "HH:MM"
+ */
+export function utcParaLisboa(instante) {
+  if (!(instante instanceof Date) || Number.isNaN(instante.getTime())) {
+    throw new TypeError("utcParaLisboa precisa de uma data válida");
+  }
+  const p = Object.fromEntries(relogioDeLisboa.formatToParts(instante).map((x) => [x.type, x.value]));
+  return { data: `${p.year}-${p.month}-${p.day}`, hora: `${p.hour}:${p.minute}` };
+}
