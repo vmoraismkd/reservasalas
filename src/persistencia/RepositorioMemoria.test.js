@@ -5,10 +5,13 @@ import { reservarSala } from "../aplicacional/reservarSala.js";
 import { Sala } from "../dominio/Sala.js";
 import { Reserva } from "../dominio/Reserva.js";
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const h = (hora) => new Date(`2026-11-10T${hora}:00Z`);
-const atlantico = new Sala({ id: 1, nome: "Sala Atlântico", capacidade: 12 });
-const douro = new Sala({ id: 2, nome: "Sala Douro", capacidade: 6 });
-const r = (id, salaId, inicio, fim) => new Reserva({ id, salaId, inicio: h(inicio), fim: h(fim) });
+const atlantico = new Sala({ id: "s1", nome: "Sala Atlântico", capacidade: 12 });
+const douro = new Sala({ id: "s2", nome: "Sala Douro", capacidade: 6 });
+// Reserva já guardada (com id) ou nova (id null), na sala "s<n>".
+const r = (id, salaId, inicio, fim) =>
+  new Reserva({ id: id === null ? null : `r${id}`, salaId: `s${salaId}`, inicio: h(inicio), fim: h(fim) });
 
 describe("RepositorioMemoria", () => {
   it.each(METODOS_DO_REPOSITORIO)("cumpre a interface: tem o método %s", (metodo) => {
@@ -33,34 +36,32 @@ describe("RepositorioMemoria", () => {
     const repo = new RepositorioMemoria({ reservas: [a, b, c] });
 
     expect(await repo.listarReservas()).toEqual([a, b, c]);
-    expect(await repo.listarReservasDaSala(1)).toEqual([a, c]);
-    expect(await repo.listarReservasDaSala(2)).toEqual([b]);
-    expect(await repo.listarReservasDaSala(99)).toEqual([]);
+    expect(await repo.listarReservasDaSala("s1")).toEqual([a, c]);
+    expect(await repo.listarReservasDaSala("s2")).toEqual([b]);
+    expect(await repo.listarReservasDaSala("nao-existe")).toEqual([]);
   });
 
-  it("dá ids novos, sempre diferentes e acima dos já existentes", async () => {
-    const repo = new RepositorioMemoria({ reservas: [r(5, 1, "09:00", "10:00")] });
-    const primeiro = await repo.proximoIdReserva();
-    const segundo = await repo.proximoIdReserva();
-    expect(primeiro).toBe(6);
-    expect(segundo).toBe(7);
-  });
-
-  it("começa os ids em 1 quando não há reservas", async () => {
-    expect(await new RepositorioMemoria().proximoIdReserva()).toBe(1);
-  });
-
-  it("guarda uma reserva e passa a listá-la", async () => {
+  it("ao guardar uma reserva nova atribui-lhe um UUID e devolve-a", async () => {
     const repo = new RepositorioMemoria();
-    const nova = r(1, 2, "14:00", "15:00");
-    await repo.guardarReserva(nova);
-    expect(await repo.listarReservas()).toEqual([nova]);
-    expect(await repo.listarReservasDaSala(2)).toEqual([nova]);
+    const guardada = await repo.guardarReserva(r(null, 2, "14:00", "15:00"));
+    expect(guardada).toBeInstanceOf(Reserva);
+    expect(guardada.id).toMatch(UUID);
+    expect(guardada.salaId).toBe("s2");
+    expect(guardada.inicio.toISOString()).toBe("2026-11-10T14:00:00.000Z");
+    expect(await repo.listarReservas()).toEqual([guardada]);
+    expect(await repo.listarReservasDaSala("s2")).toEqual([guardada]);
   });
 
-  it("recusa guardar duas reservas com o mesmo id", async () => {
-    const repo = new RepositorioMemoria({ reservas: [r(1, 1, "09:00", "10:00")] });
-    await expect(repo.guardarReserva(r(1, 2, "11:00", "12:00"))).rejects.toThrow(/id 1/);
+  it("dá ids diferentes a cada reserva guardada", async () => {
+    const repo = new RepositorioMemoria();
+    const a = await repo.guardarReserva(r(null, 1, "09:00", "10:00"));
+    const b = await repo.guardarReserva(r(null, 1, "10:00", "11:00"));
+    expect(a.id).not.toBe(b.id);
+  });
+
+  it("recusa guardar uma reserva que já tem id (só guarda reservas novas)", async () => {
+    const repo = new RepositorioMemoria();
+    await expect(repo.guardarReserva(r(1, 2, "11:00", "12:00"))).rejects.toThrow(/já tem id/);
   });
 
   it("não deixa que alterar as listas devolvidas mude os dados guardados", async () => {
@@ -81,9 +82,9 @@ describe("RepositorioMemoria", () => {
   it("funciona com o caso de uso reservarSala do princípio ao fim", async () => {
     const repo = new RepositorioMemoria({ salas: [atlantico, douro] });
 
-    const primeira = await reservarSala(repo, { salaId: 1, inicio: h("10:00"), fim: h("12:00") });
-    const chocante = await reservarSala(repo, { salaId: 1, inicio: h("11:00"), fim: h("13:00") });
-    const seguida = await reservarSala(repo, { salaId: 1, inicio: h("12:00"), fim: h("13:00") });
+    const primeira = await reservarSala(repo, { salaId: "s1", inicio: h("10:00"), fim: h("12:00") });
+    const chocante = await reservarSala(repo, { salaId: "s1", inicio: h("11:00"), fim: h("13:00") });
+    const seguida = await reservarSala(repo, { salaId: "s1", inicio: h("12:00"), fim: h("13:00") });
 
     expect(primeira.sucesso).toBe(true);
     expect(chocante.sucesso).toBe(false);

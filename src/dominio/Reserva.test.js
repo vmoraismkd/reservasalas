@@ -4,22 +4,27 @@ import { ErroDominio } from "./ErroDominio.js";
 
 const inicio = new Date("2026-11-10T09:00:00Z");
 const fim = new Date("2026-11-10T10:30:00Z");
-const valida = { id: 1, salaId: 2, inicio, fim };
+// Os ids são texto (ex.: UUID gerado pela base de dados).
+const valida = { id: "reserva-1", salaId: "sala-2", inicio, fim };
 
 describe("Reserva", () => {
   it("cria uma reserva com dados válidos", () => {
     const reserva = new Reserva(valida);
-    expect(reserva.id).toBe(1);
-    expect(reserva.salaId).toBe(2);
+    expect(reserva.id).toBe("reserva-1");
+    expect(reserva.salaId).toBe("sala-2");
     expect(reserva.inicio.toISOString()).toBe("2026-11-10T09:00:00.000Z");
     expect(reserva.fim.toISOString()).toBe("2026-11-10T10:30:00.000Z");
   });
 
-  it.each([0, -1, 1.5, "1", null, undefined])("rejeita id inválido: %s", (id) => {
+  it.each([undefined, null])("uma reserva nova pode ainda não ter id (%s): fica null até ser guardada", (id) => {
+    expect(new Reserva({ ...valida, id }).id).toBeNull();
+  });
+
+  it.each(["", "   ", 1, 0, 1.5])("rejeita id inválido: %s", (id) => {
     expect(() => new Reserva({ ...valida, id })).toThrow(ErroDominio);
   });
 
-  it.each([0, -1, 1.5, "2", null, undefined])("rejeita salaId inválido: %s", (salaId) => {
+  it.each(["", "   ", 2, 0, null, undefined])("rejeita salaId inválido: %s", (salaId) => {
     expect(() => new Reserva({ ...valida, salaId })).toThrow(ErroDominio);
   });
 

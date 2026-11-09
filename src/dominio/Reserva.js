@@ -1,4 +1,5 @@
 import { ErroDominio } from "./ErroDominio.js";
+import { ehIdValido } from "./Sala.js";
 
 function ehDataValida(valor) {
   return valor instanceof Date && !Number.isNaN(valor.getTime());
@@ -13,11 +14,12 @@ export class Reserva {
   #fim;
 
   constructor({ id, salaId, inicio, fim }) {
-    if (!Number.isInteger(id) || id <= 0) {
-      throw new ErroDominio("O id da reserva tem de ser um número inteiro positivo");
+    // Uma reserva nova ainda não tem id: é a persistência que o atribui ao guardar.
+    if (id !== undefined && id !== null && !ehIdValido(id)) {
+      throw new ErroDominio("O id da reserva, quando existe, tem de ser texto não vazio");
     }
-    if (!Number.isInteger(salaId) || salaId <= 0) {
-      throw new ErroDominio("O id da sala tem de ser um número inteiro positivo");
+    if (!ehIdValido(salaId)) {
+      throw new ErroDominio("O id da sala é obrigatório (texto não vazio)");
     }
     if (!ehDataValida(inicio)) {
       throw new ErroDominio("O início da reserva tem de ser uma data válida");
@@ -29,7 +31,7 @@ export class Reserva {
       throw new ErroDominio("O fim da reserva tem de ser depois do início");
     }
 
-    this.id = id;
+    this.id = id ?? null;
     this.salaId = salaId;
     this.#inicio = new Date(inicio.getTime());
     this.#fim = new Date(fim.getTime());

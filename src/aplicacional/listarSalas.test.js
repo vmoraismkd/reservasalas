@@ -7,9 +7,9 @@ describe("listarSalas", () => {
   it("devolve as salas do repositório ordenadas pelo nome", async () => {
     const repo = criarRepositorioFalso({
       salas: [
-        new Sala({ id: 1, nome: "Sala Tejo", capacidade: 20 }),
-        new Sala({ id: 2, nome: "Sala Atlântico", capacidade: 12 }),
-        new Sala({ id: 3, nome: "Sala Douro", capacidade: 6 }),
+        new Sala({ id: "s1", nome: "Sala Tejo", capacidade: 20 }),
+        new Sala({ id: "s2", nome: "Sala Atlântico", capacidade: 12 }),
+        new Sala({ id: "s3", nome: "Sala Douro", capacidade: 6 }),
       ],
     });
 

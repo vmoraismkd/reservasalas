@@ -4,7 +4,7 @@ import { criarRepositorioFalso } from "./repositorioFalso.js";
 import { Reserva } from "../dominio/Reserva.js";
 
 const r = (id, salaId, inicio, fim) =>
-  new Reserva({ id, salaId, inicio: new Date(inicio), fim: new Date(fim) });
+  new Reserva({ id: `r${id}`, salaId: `s${salaId}`, inicio: new Date(inicio), fim: new Date(fim) });
 
 describe("listarReservas", () => {
   it("devolve as reservas de todas as salas ordenadas pela data de início", async () => {
@@ -18,7 +18,7 @@ describe("listarReservas", () => {
 
     const reservas = await listarReservas(repo);
 
-    expect(reservas.map((x) => x.id)).toEqual([3, 2, 1]);
+    expect(reservas.map((x) => x.id)).toEqual(["r3", "r2", "r1"]);
     expect(reservas[0]).toBeInstanceOf(Reserva);
   });
 

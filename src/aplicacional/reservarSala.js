@@ -13,16 +13,16 @@ export async function reservarSala(repositorio, { salaId, inicio, fim } = {}) {
       return { sucesso: false, erro: "A sala não existe" };
     }
 
-    // As validações das datas são feitas pelo domínio ao criar a Reserva.
-    const id = await repositorio.proximoIdReserva();
-    const reserva = new Reserva({ id, salaId, inicio, fim });
+    // Reserva nova, ainda sem id. As validações das datas são feitas pelo domínio ao criá-la.
+    const reserva = new Reserva({ salaId, inicio, fim });
     garantirDuracaoMaxima(reserva);
 
     const existentes = await repositorio.listarReservasDaSala(salaId);
     garantirSemSobreposicao(reserva, existentes);
 
-    await repositorio.guardarReserva(reserva);
-    return { sucesso: true, reserva };
+    // A persistência atribui o id e devolve a reserva guardada.
+    const guardada = await repositorio.guardarReserva(reserva);
+    return { sucesso: true, reserva: guardada };
   } catch (erro) {
     // Regras do negócio: a mensagem é pensada para o utilizador.
     if (erro instanceof ErroDominio) return { sucesso: false, erro: erro.message };

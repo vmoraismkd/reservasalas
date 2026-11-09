@@ -3,10 +3,11 @@ import { Reserva, garantirSemSobreposicao } from "./Reserva.js";
 import { ErroDominio } from "./ErroDominio.js";
 
 // Atalho: horas do dia 10/11/2026 em UTC, ex.: reserva(1, 1, "09:00", "10:00").
+// Os números dão ids em texto ("r1", "sala-1"), como os da base de dados.
 function reserva(id, salaId, inicio, fim) {
   return new Reserva({
-    id,
-    salaId,
+    id: `r${id}`,
+    salaId: `sala-${salaId}`,
     inicio: new Date(`2026-11-10T${inicio}:00Z`),
     fim: new Date(`2026-11-10T${fim}:00Z`),
   });
@@ -49,8 +50,8 @@ describe("Reserva.sobrepoeCom", () => {
 
   it("considera o dia, não só as horas", () => {
     const outroDia = new Reserva({
-      id: 2,
-      salaId: 1,
+      id: "r2",
+      salaId: "sala-1",
       inicio: new Date("2026-11-11T10:00:00Z"),
       fim: new Date("2026-11-11T12:00:00Z"),
     });
@@ -59,8 +60,8 @@ describe("Reserva.sobrepoeCom", () => {
 
   it("considera reservas que atravessam a meia-noite", () => {
     const noite = new Reserva({
-      id: 2,
-      salaId: 1,
+      id: "r2",
+      salaId: "sala-1",
       inicio: new Date("2026-11-09T22:00:00Z"),
       fim: new Date("2026-11-10T10:30:00Z"),
     });

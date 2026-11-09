@@ -6,8 +6,8 @@ import { ErroDominio } from "./ErroDominio.js";
 // Reserva na sala 1, no dia 10/11/2026 (UTC), entre as horas indicadas.
 function reserva(inicio, fim, { diaFim = "2026-11-10" } = {}) {
   return new Reserva({
-    id: 1,
-    salaId: 1,
+    id: "r1",
+    salaId: "sala-1",
     inicio: new Date(`2026-11-10T${inicio}:00Z`),
     fim: new Date(`${diaFim}T${fim}:00Z`),
   });
